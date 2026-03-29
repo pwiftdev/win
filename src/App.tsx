@@ -186,7 +186,7 @@ export default function App() {
         </nav>
       </header>
 
-      <main id="main" tabIndex={-1}>
+      <main id="main" className="app-main" tabIndex={-1}>
         <section id="top" className="section section--tight-top hero-section">
           <div className="wrap hero">
             <div className="hero__content">

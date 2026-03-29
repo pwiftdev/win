@@ -3,7 +3,6 @@
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  overflow-x: clip;
 }
 
 /* —— Entry loader (full viewport, no scroll) —— */
@@ -250,15 +249,22 @@ button.btn-primary.entry-loader__primary {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-.app > *:not(.app__bg):not(.entry-loader) {
+.app > *:not(.app__bg):not(.entry-loader):not(.site-header) {
   position: relative;
   z-index: 1;
+}
+
+.app-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: clip;
 }
 
 /* —— Header —— */
 .site-header {
   position: sticky;
   top: 0;
+  align-self: stretch;
   z-index: 20;
   height: var(--header-h);
   display: flex;
