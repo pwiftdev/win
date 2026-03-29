@@ -1,0 +1,80 @@
+:root {
+  --bg-deep: #020202;
+  --bg-raised: #080808;
+  --bg-card: rgba(14, 14, 14, 0.82);
+  --text: #fafafa;
+  --text-muted: #b4b4ae;
+  --text-faint: #6b6b66;
+  /* Pepe / memecoin CTA green */
+  --pepe: #3edd6a;
+  --pepe-mid: #2bc55a;
+  --pepe-deep: #0a1f12;
+  --pepe-soft: rgba(62, 221, 106, 0.12);
+  --pepe-glow: rgba(62, 221, 106, 0.42);
+  --pepe-border: rgba(62, 221, 106, 0.35);
+  --line: rgba(255, 255, 255, 0.07);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --font-display: 'Spectral', Georgia, 'Times New Roman', serif;
+  --font-ui: 'IBM Plex Sans', system-ui, sans-serif;
+  --space-xs: clamp(0.5rem, 1.5vw, 0.75rem);
+  --space-sm: clamp(0.75rem, 2vw, 1rem);
+  --space-md: clamp(1.25rem, 3vw, 2rem);
+  --space-lg: clamp(2rem, 5vw, 4rem);
+  --space-xl: clamp(3rem, 8vw, 6rem);
+  --max: 72rem;
+  --header-h: 4rem;
+
+  color-scheme: dark;
+  font-family: var(--font-ui);
+  font-size: clamp(15px, 0.45vw + 14px, 17px);
+  line-height: 1.55;
+  color: var(--text);
+  background-color: var(--bg-deep);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--pepe);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
