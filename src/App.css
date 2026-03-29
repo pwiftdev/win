@@ -249,7 +249,7 @@ button.btn-primary.entry-loader__primary {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-.app > *:not(.app__bg):not(.entry-loader):not(.site-header) {
+.app > *:not(.app__bg):not(.entry-loader):not(.site-header):not(.scroll-progress) {
   position: relative;
   z-index: 1;
 }
@@ -258,6 +258,35 @@ button.btn-primary.entry-loader__primary {
   flex: 1 1 auto;
   min-width: 0;
   overflow-x: clip;
+}
+
+/* —— Scroll progress (fixed bottom) —— */
+.scroll-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 25;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.scroll-progress__track {
+  height: 6px;
+  width: 100%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.scroll-progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pepe-mid), var(--pepe));
+  box-shadow: 0 0 14px var(--pepe-glow);
+  will-change: width;
 }
 
 /* —— Header —— */

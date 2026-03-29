@@ -40,6 +40,54 @@ function SolanaGlyph({ className }: { className?: string }) {
   )
 }
 
+function ScrollProgress() {
+  const [pct, setPct] = useState(0)
+  const rafRef = useRef(0)
+
+  useEffect(() => {
+    const measure = () => {
+      const el = document.documentElement
+      const max = el.scrollHeight - el.clientHeight
+      const next = max <= 0 ? 0 : (el.scrollTop / max) * 100
+      setPct(Math.min(100, Math.max(0, next)))
+    }
+
+    const onScrollOrResize = () => {
+      if (rafRef.current) return
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0
+        measure()
+      })
+    }
+
+    measure()
+    window.addEventListener('scroll', onScrollOrResize, { passive: true })
+    window.addEventListener('resize', onScrollOrResize)
+    return () => {
+      window.removeEventListener('scroll', onScrollOrResize)
+      window.removeEventListener('resize', onScrollOrResize)
+      cancelAnimationFrame(rafRef.current)
+    }
+  }, [])
+
+  const rounded = Math.round(pct)
+
+  return (
+    <div
+      className="scroll-progress"
+      role="progressbar"
+      aria-valuenow={rounded}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Page scroll progress"
+    >
+      <div className="scroll-progress__track">
+        <div className="scroll-progress__fill" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const [navOpen, setNavOpen] = useState(false)
   const closeNav = useCallback(() => setNavOpen(false), [])
@@ -328,6 +376,8 @@ export default function App() {
           </p>
         </div>
       </footer>
+
+      {!loaderMounted ? <ScrollProgress /> : null}
     </div>
   )
 }
