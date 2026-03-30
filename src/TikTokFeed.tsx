@@ -8,10 +8,13 @@ export function TikTokFeed() {
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([])
   const [active, setActive] = useState(0)
   const [hudVisible, setHudVisible] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
   const rafRef = useRef(0)
   const total = TIKTOK_FEED_SOURCES.length
 
   const didAutoCenterRef = useRef(false)
+  const snapLockRef = useRef(false)
+  const snapUnlockTimerRef = useRef<number | null>(null)
 
   const exitToNextSection = useCallback(() => {
     const token = document.getElementById('token')
@@ -87,9 +90,10 @@ export function TikTokFeed() {
     videoRefs.current.forEach((v, i) => {
       if (!v) return
       if (i === active) {
-        v.muted = false
+        v.muted = isMuted || !hudVisible
         void v.play().catch(() => {
           v.muted = true
+          setIsMuted(true)
           void v.play()
         })
       } else {
@@ -97,7 +101,7 @@ export function TikTokFeed() {
         v.muted = true
       }
     })
-  }, [active])
+  }, [active, isMuted, hudVisible])
 
   useEffect(() => {
     const root = sectionRef.current
@@ -136,6 +140,56 @@ export function TikTokFeed() {
 
     io.observe(el)
     return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+
+    const clearSnapLockTimer = () => {
+      if (snapUnlockTimerRef.current !== null) {
+        window.clearTimeout(snapUnlockTimerRef.current)
+        snapUnlockTimerRef.current = null
+      }
+    }
+
+    const onWheel = (e: WheelEvent) => {
+      const rail = railRef.current
+      const target = e.target as Node | null
+      const isInsideRail = Boolean(rail && target && rail.contains(target))
+      if (isInsideRail) {
+        return
+      }
+
+      if (snapLockRef.current) {
+        e.preventDefault()
+        return
+      }
+
+      const rect = el.getBoundingClientRect()
+      const vh = window.innerHeight || document.documentElement.clientHeight
+      const partiallyVisible = rect.top < vh * 0.78 && rect.bottom > vh * 0.22
+      const closeToCenter = Math.abs(rect.top) < 3
+
+      // Only catch when scrolling DOWN into reels from above, never while already in-feed.
+      if (e.deltaY > 0 && rect.top > 0 && partiallyVisible && !closeToCenter) {
+        e.preventDefault()
+        snapLockRef.current = true
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        clearSnapLockTimer()
+        snapUnlockTimerRef.current = window.setTimeout(() => {
+          snapLockRef.current = false
+          snapUnlockTimerRef.current = null
+        }, 420)
+      }
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      window.removeEventListener('wheel', onWheel)
+      clearSnapLockTimer()
+      snapLockRef.current = false
+    }
   }, [])
 
   return (
@@ -202,6 +256,15 @@ export function TikTokFeed() {
               <span className="tiktok-feed__hud-sep"> / </span>
               <span>{total}</span>
             </p>
+            <button
+              type="button"
+              className="tiktok-feed__sound"
+              onClick={() => setIsMuted((prev) => !prev)}
+              aria-label={isMuted ? 'Unmute video sound' : 'Mute video sound'}
+              aria-pressed={!isMuted}
+            >
+              {isMuted ? 'Unmute' : 'Mute'}
+            </button>
             <button
               type="button"
               className="tiktok-feed__exit"

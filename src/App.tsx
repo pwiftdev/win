@@ -3,6 +3,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type TransitionEvent,
 } from 'react'
 import { PUMP_FUN_URL, SOCIAL } from './config'
@@ -95,7 +96,10 @@ export default function App() {
 
   const [loaderMounted, setLoaderMounted] = useState(true)
   const [loaderExiting, setLoaderExiting] = useState(false)
+  const [heroAudioEnabled, setHeroAudioEnabled] = useState(false)
+  const [heroAspectRatio, setHeroAspectRatio] = useState<number | null>(null)
   const entryBtnRef = useRef<HTMLButtonElement>(null)
+  const heroVideoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     if (!loaderMounted) return
@@ -141,7 +145,42 @@ export default function App() {
     }
   }, [loaderMounted])
 
+  useEffect(() => {
+    const heroVideo = heroVideoRef.current
+    if (!heroVideo || !heroAudioEnabled) return
+
+    const syncMuteWithViewport = (inView: boolean) => {
+      heroVideo.muted = !inView
+      if (inView) {
+        void heroVideo.play().catch(() => {
+          heroVideo.muted = true
+        })
+      }
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        const inView = Boolean(entry?.isIntersecting && (entry.intersectionRatio ?? 0) > 0.35)
+        syncMuteWithViewport(inView)
+      },
+      { threshold: [0, 0.2, 0.35, 0.6, 1] },
+    )
+
+    io.observe(heroVideo)
+    return () => io.disconnect()
+  }, [heroAudioEnabled])
+
   const dismissLoader = useCallback(() => {
+    setHeroAudioEnabled(true)
+    const heroVideo = heroVideoRef.current
+    if (heroVideo) {
+      heroVideo.currentTime = 0
+      heroVideo.muted = false
+      void heroVideo.play().catch(() => {
+        // Keep playback resilient if the browser still blocks unmuted autoplay.
+        heroVideo.muted = true
+      })
+    }
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setLoaderMounted(false)
       return
@@ -254,7 +293,15 @@ export default function App() {
       </header>
 
       <main id="main" className="app-main" tabIndex={-1}>
-        <section id="top" className="section section--tight-top hero-section">
+        <section
+          id="top"
+          className="section section--tight-top hero-section"
+          style={
+            heroAspectRatio
+              ? ({ '--hero-aspect': `${heroAspectRatio}` } as CSSProperties)
+              : undefined
+          }
+        >
           <div className="wrap hero">
             <div className="hero__content">
               <p className="hero__eyebrow">Solana · Pump.fun</p>
@@ -293,12 +340,19 @@ export default function App() {
           </div>
 
           <div className="hero__visual" aria-hidden>
-            <img
-              src="/hero1.jpeg"
-              alt=""
-              width={880}
-              height={880}
-              decoding="async"
+            <video
+              ref={heroVideoRef}
+              src="/herovideo.mp4"
+              muted={!heroAudioEnabled}
+              loop
+              playsInline
+              preload="metadata"
+              onLoadedMetadata={(e) => {
+                const { videoWidth, videoHeight } = e.currentTarget
+                if (videoWidth > 0 && videoHeight > 0) {
+                  setHeroAspectRatio(videoWidth / videoHeight)
+                }
+              }}
             />
           </div>
         </section>
