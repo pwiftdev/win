@@ -6,6 +6,7 @@ import {
   type TransitionEvent,
 } from 'react'
 import { PUMP_FUN_URL, SOCIAL } from './config'
+import { TikTokFeed } from './TikTokFeed'
 import './App.css'
 
 function XLogo({ className }: { className?: string }) {
@@ -102,11 +103,29 @@ export default function App() {
     const body = document.body
     const prevHtml = html.style.overflow
     const prevBody = body.style.overflow
+    const prevHtmlOverscroll = html.style.overscrollBehavior
+    const prevBodyOverscroll = body.style.overscrollBehavior
+    const prevHtmlTouchAction = html.style.touchAction
+    const prevBodyTouchAction = body.style.touchAction
+    const prevHtmlHeight = html.style.height
+    const prevBodyHeight = body.style.height
     html.style.overflow = 'hidden'
     body.style.overflow = 'hidden'
+    html.style.overscrollBehavior = 'none'
+    body.style.overscrollBehavior = 'none'
+    html.style.touchAction = 'none'
+    body.style.touchAction = 'none'
+    html.style.height = '100%'
+    body.style.height = '100%'
     return () => {
       html.style.overflow = prevHtml
       body.style.overflow = prevBody
+      html.style.overscrollBehavior = prevHtmlOverscroll
+      body.style.overscrollBehavior = prevBodyOverscroll
+      html.style.touchAction = prevHtmlTouchAction
+      body.style.touchAction = prevBodyTouchAction
+      html.style.height = prevHtmlHeight
+      body.style.height = prevBodyHeight
     }
   }, [loaderMounted])
 
@@ -305,6 +324,29 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        <section
+          id="winners-timeline"
+          className="section winners-timeline"
+          aria-labelledby="winners-timeline-heading"
+        >
+          <div className="wrap winners-timeline__wrap">
+            <h2 id="winners-timeline-heading" className="winners-timeline__title">
+              The Winner&apos;s Timeline
+            </h2>
+            <p className="winners-timeline__lead">
+              We curated the most popular motivational videos about winning. Watch them
+              every day, stay locked in, and boost your chances of winning when it matters.
+            </p>
+            <div className="winners-timeline__actions">
+              <a href="#reels" className="btn-primary">
+                Start watching
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <TikTokFeed />
 
         <section id="token" className="section">
           <div className="wrap">
