@@ -6,7 +6,7 @@ import {
   type CSSProperties,
   type TransitionEvent,
 } from 'react'
-import { PUMP_FUN_URL, SOCIAL } from './config'
+import { PUMP_FUN_URL, SOCIAL, TOKEN_CA } from './config'
 import { TikTokFeed } from './TikTokFeed'
 import './App.css'
 
@@ -93,6 +93,8 @@ function ScrollProgress() {
 export default function App() {
   const [navOpen, setNavOpen] = useState(false)
   const closeNav = useCallback(() => setNavOpen(false), [])
+  const [copiedCA, setCopiedCA] = useState(false)
+  const copyResetTimerRef = useRef<number | null>(null)
 
   const [loaderMounted, setLoaderMounted] = useState(true)
   const [loaderExiting, setLoaderExiting] = useState(false)
@@ -144,6 +146,14 @@ export default function App() {
       document.getElementById('main')?.focus()
     }
   }, [loaderMounted])
+
+  useEffect(() => {
+    return () => {
+      if (copyResetTimerRef.current !== null) {
+        window.clearTimeout(copyResetTimerRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const heroVideo = heroVideoRef.current
@@ -203,6 +213,24 @@ export default function App() {
     { key: 'discord', label: 'Discord', href: SOCIAL.discord },
   ].filter((item) => item.href)
 
+  const onCopyCA = useCallback(async () => {
+    const ca = TOKEN_CA.trim()
+    if (!ca) return
+    try {
+      await navigator.clipboard.writeText(ca)
+      setCopiedCA(true)
+      if (copyResetTimerRef.current !== null) {
+        window.clearTimeout(copyResetTimerRef.current)
+      }
+      copyResetTimerRef.current = window.setTimeout(() => {
+        setCopiedCA(false)
+        copyResetTimerRef.current = null
+      }, 1500)
+    } catch {
+      // no-op if clipboard API is unavailable or denied
+    }
+  }, [])
+
   return (
     <div className="app">
       {loaderMounted ? (
@@ -246,7 +274,7 @@ export default function App() {
       <header className="site-header">
         <a href="#top" className="site-header__brand" onClick={closeNav}>
           <img
-            src="/logowin.jpeg"
+            src="/hero1.jpeg"
             alt=""
             className="site-header__logo"
             width={40}
@@ -286,9 +314,27 @@ export default function App() {
           <a href="#token" onClick={closeNav}>
             Token
           </a>
-          <button type="button" className="site-header__x" aria-label="X">
-            <XLogo />
-          </button>
+          {TOKEN_CA ? (
+            <button
+              type="button"
+              className="site-header__copy"
+              onClick={onCopyCA}
+              aria-live="polite"
+            >
+              {copiedCA ? 'Copied' : 'Copy CA'}
+            </button>
+          ) : null}
+          {SOCIAL.x ? (
+            <a
+              href={SOCIAL.x}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="site-header__x"
+              aria-label="X"
+            >
+              <XLogo />
+            </a>
+          ) : null}
         </nav>
       </header>
 
